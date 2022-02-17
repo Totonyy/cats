@@ -1,0 +1,133 @@
+body {
+    margin: 0px;
+    font-family: sans-serif;
+    font-size: 20px;
+}
+.container {
+     display: flex;
+  
+     padding: 30px calc(50% - 500px);
+}
+header {
+    align-items: center;
+    justify-content: space-between;
+    font: sans-serif;
+    box-shadow: 0 0 5px 0 #0006;
+}
+.logo-img {
+    height: 80px;
+}
+
+.cards_cats {
+    flex-wrap: wrap;
+    gap: 50px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.card_cat {
+    width: 300px;
+    padding: 30px;
+    box-sizing: border-box;
+    box-shadow: 0 0 5px 0 #0006;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    text-align: center;
+}
+
+.cat-img {
+    height: 150px;
+    border-radius: 10px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    opacity: .7;
+}
+
+p, h1, h2, h3 {
+    margin: 0;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.rate {
+    display: flex;
+
+}
+.rate-img {
+    height: 10px;
+}
+
+footer {
+    font: 20px sans-serif;
+    box-shadow: 0 0 5px 0 #0006;
+}
+
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #0008;
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+.popup.popup_active {
+    display: flex;
+}
+.popup_active{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #0008;
+    align-items: center;
+    justify-content: center;
+    display: none;
+      
+}
+.popup_wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 300px);
+    gap: 0 50px;
+    background-color: #fff;
+    padding: 30px;
+    border: 1px solid;
+    border-radius: 10px;
+    position: relative;
+    max-width: 1000px;
+}
+.info-img {
+    width: 100%;
+    height: 100%;
+}
+.information h2 {
+    font-family: "Comic Sans MS", sans-serif;
+    margin-bottom: 30px;
+}
+.information h3 {
+    margin-bottom: 30px;
+}
+
+.popup_close-img {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    background-image: url(img/close.png);
+    background-position: center 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 50px;
+    height: 50px;
+}
+
+
