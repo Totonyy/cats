@@ -7,11 +7,16 @@
     <title>Котюни</title>
     <link rel="icon" href="img/favicon.png">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
 </head>
 <body>
     <header class="container">
         <img class="logo-img" src="img/logo.svg" alt="logo">
         <span class="logo-text">Бабуленькины котики</span>
+        <form name="auth-form" class="auth-form">
+            <input type="text" name="name" class="auth-form_input" placeholder="Ваше имя"> 
+            <button type="login" class="auth-form_login-btn">Авторизация</button>
+        </form>
     </header>
     <main class="container cards_cats"></main>
     <footer class="container">©2022 All rights reserved</footer>
@@ -20,6 +25,8 @@
         <div class="popup_wrapper"></div>
     </div>
     <script src="cats.js"></script>
+    <script src="api.js"></script>
+    <script src="editCat.js"></script>
     <script src="script.js"></script>  
 </body>
 </html>
