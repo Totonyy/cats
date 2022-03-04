@@ -1,5 +1,8 @@
 const infoBlock = document.querySelector(".popup");
 const main = document.querySelector('main');
+const storageAllCats = window.localStorage;
+
+let oneCat = {};
 
 const rate = function(numberRate){
     let noRate = 10-numberRate;
@@ -15,19 +18,6 @@ const rate = function(numberRate){
     return count;   
 };
 
-//рендер котов из файла
-// cats.forEach(function(item){
-//     const itemCat = `
-//         <div class="card_cat">
-//             <div class="cat-img" style="background-image: url(${item.img_link})"></div>
-//             <h3>${item.name}</h3>
-//             <p class="rate">${rate(item.rate)}</p> 
-//             ${showBtnDel()}
-//         </div>
-//     `;
-//     main.innerHTML += itemCat;
-// });
-
 const getWord = function (year, w1, w2, w0) {
     if (year % 100 < 11 || year % 100 > 14) {
         if (year % 10 === 1) {
@@ -42,6 +32,37 @@ const getWord = function (year, w1, w2, w0) {
     }
 };
 
+//получили котов, отрендерили, записали в локу, навесили обработчик попапа
+function getCats(){
+    api.getAllCats()
+        .then(allCats =>{      
+            // console.log(allCats.data);
+            allCats.data.forEach(function(item){
+                const itemCat = `
+                    <div class="card_cat">
+                        <div class="cat-img" style="background-image: url(${item.img_link})"></div>
+                        <h3>${item.name}</h3>
+                        <p class="rate">${rate(item.rate)}</p> 
+                        ${showBtnDel(item.id)}
+                    </div>
+                `;
+                main.innerHTML += itemCat;
+            });
+
+            if(!storageAllCats.getItem("allCats")){
+                storageAllCats.setItem("allCats", JSON.stringify(allCats.data))
+            };
+            
+            const cards = document.getElementsByClassName("cat-img");
+            for (let i = 0; i < cards.length; i++) {
+                cards[i].addEventListener("click", function(e) {
+                    showPopup(allCats.data[i]);
+                });
+            };
+        });
+} 
+getCats();
+
 const showPopup = function (data) {
     infoBlock.classList.add("popup_active");
     infoBlock.firstElementChild.innerHTML = `
@@ -54,53 +75,108 @@ const showPopup = function (data) {
         <div class="popup_close" onclick="closePopup()">
             <img class="popup_close-img" src="img/close.png" alt="close">
         </div>
-        ${showBtnEdit()} 
+        ${showBtnEdit(data)} 
     `;
 };
+
+const showPopupCatAdd = function (data) {
+    infoBlock.classList.add("popup_active");
+    infoBlock.firstElementChild.innerHTML = `
+        <form class="popup_form-add">
+            <input type="text" placeholder="id" name="id" id="id">
+            <input type="text" placeholder="Имя" name="name" id="name">
+            <input type="text" placeholder="Изображение" name="img_link" id="img_link">
+            <input type="text" placeholder="Описание" name="description" id="description">
+            <input type="text" placeholder="Рейтинг" name="rate" id="rate">
+            <input type="text" placeholder="Возраст" name="age" id="age">
+            <button type="submit">Отправить</button>
+        </form>
+        <div class="popup_close" onclick="closePopup()">
+            <img class="popup_close-img" src="img/close.png" alt="close">
+        </div>
+    `;
+    
+    const formAdd = document.querySelector('.popup_form-add'); //форма нового кота
+    const formInputId = formAdd.querySelector('#id');
+    const formInputName = formAdd.querySelector('#name');
+    const formInputImg = formAdd.querySelector('#img_link');
+    const formInputDesc = formAdd.querySelector('#description');
+    const formInputRate = formAdd.querySelector('#rate');
+    const formInputAge = formAdd.querySelector('#age');
+
+    formAdd.addEventListener('submit', (evt)=> {
+        evt.preventDefault();
+        const bodyJSON = {
+            id: formInputId.value,
+            name: formInputName.value,
+            img_link: formInputImg.value,
+            description: formInputDesc.value,
+            rate: formInputRate.value,
+            age: formInputAge.value,
+        };
+
+        api.addCat(bodyJSON)
+            .then(()=>{
+                reloadDataCats();
+                location.reload(); 
+            })
+    })
+};
+
+const showPopupCatEdit = function (id) { 
+    infoBlock.classList.add("popup_active");
+    infoBlock.firstElementChild.innerHTML = `
+        <form class="popup_form-edit">
+            <input type="text" placeholder="id" name="id" id="id_edit">
+            <input type="text" placeholder="Имя" name="name" id="name_edit">
+            <input type="text" placeholder="Изображение" name="img_link" id="img_link_edit">
+            <input type="text" placeholder="Описание" name="description" id="description_edit">
+            <input type="text" placeholder="Рейтинг" name="rate" id="rate_edit">
+            <input type="text" placeholder="Возраст" name="age" id="age_edit">
+            <button type="submit">Отправить</button>
+        </form>
+        <div class="popup_close" onclick="closePopup()">
+            <img class="popup_close-img" src="img/close.png" alt="close">
+        </div>
+    `;
+
+    const formEdit = document.querySelector('.popup_form-edit'); //редактируем кота
+    const inputs = formEdit.querySelectorAll("input");
+
+    const formInputId = formEdit.querySelector('#id_edit');
+    const formInputName = formEdit.querySelector('#name_edit');
+    const formInputImg = formEdit.querySelector('#img_link_edit');
+    const formInputDesc = formEdit.querySelector('#description_edit');
+    const formInputRate = formEdit.querySelector('#rate_edit');
+    const formInputAge = formEdit.querySelector('#age_edit');
+
+    inputs.forEach(input => {
+       input.value = oneCat[input.name] //сложно, подсмотрел у Максима
+    });
+
+    formEdit.addEventListener('submit', (evt)=> {
+        evt.preventDefault();
+        const bodyJSON = {
+            id: formInputId.value,
+            name: formInputName.value,
+            img_link: formInputImg.value,
+            description: formInputDesc.value,
+            rate: formInputRate.value,
+            age: formInputAge.value,
+        };
+       
+        api.updateCat(bodyJSON.id, bodyJSON)
+            .then(()=>{
+                reloadDataCats();
+                location.reload(); 
+            })
+    })
+};
+
 
 const closePopup = function () {
     infoBlock.classList.remove("popup_active");
 };
-
-//попап для рендера котов из файла:
-// const cards = document.getElementsByClassName("cat-img");
-// for (let i = 0; i < cards.length; i++) {
-//     cards[i].addEventListener("click", function(e) {
-//         showPopup(cats[i]);
-//     })
-// };
-
-const storageAllCats = window.localStorage;
-//получили котов, отрендерили, записали в локу, навесили обработчик попапа
-function getCats(){
-    api.getAllCats()
-        .then(allCats =>{      
-            // console.log(allCats.data);
-            allCats.data.forEach(function(item){
-                const itemCat = `
-                    <div class="card_cat">
-                        <div class="cat-img" style="background-image: url(${item.img_link})"></div>
-                        <h3>${item.name}</h3>
-                        <p class="rate">${rate(item.rate)}</p> 
-                        ${showBtnDel()}
-                    </div>
-                `;
-                main.innerHTML += itemCat;
-            });
-
-            if(!storageAllCats.getItem("allCats")){
-                storageAllCats.setItem("allCats", JSON.stringify(allCats.data))
-            };
-
-            const cards = document.getElementsByClassName("cat-img");
-            for (let i = 0; i < cards.length; i++) {
-                cards[i].addEventListener("click", function(e) {
-                    showPopup(allCats.data[i]);
-                });
-            };
-        });
-} 
-getCats();
 
 const authForm = document.querySelector('.auth-form');
 const inputName = authForm.querySelector('.auth-form_input');
@@ -129,34 +205,39 @@ function showAuthForm(){
         `;
     };
 };
-function showBtnDel(){
+function showBtnDel(id){
     if(Cookies.get('user')){
+        // console.log(id);
         // return `<button type="button" class="btn_delete">удалить</button>`
-        return `<div class="btn_delete" onclick="btnDel()">удалить</div>`
-    } else {
-        return ""
-    }
-};
-function showBtnEdit(){
-    if(Cookies.get('user')){
-        return `<div class="btn_edit" onclick="btnEdit()">изменить</div>`
-    } else {
-        return ""
-    }
-};
 
+        return `<div class="btn_delete" onclick="btnDel(${id})">удалить</div>`
+    } else {
+        return ""
+    }
+};
+function showBtnEdit(dataCat){
+    if(Cookies.get('user')){
+        //console.log(dataCat); //данные по коту
+        oneCat = dataCat;
+        // console.log(oneCat);
+        return `<div class="btn_edit" onclick="btnEdit(${dataCat.id})">изменить</div>`
+    } else {
+        return ""
+    }
+};
 showAuthForm();
 
 function btnsEvList(){
     if(Cookies.get('user')){
         const btnAdd = document.querySelector('.btn_add');
         btnAdd.addEventListener('click', ()=>{
-            console.log(2);
+            // console.log(2);
+            showPopupCatAdd()
         });
         const btnUpd = document.querySelector('.btn_update');
         btnUpd.addEventListener('click', ()=>{
-            console.log(3);
-            // storageAllCats.clear();
+            // console.log(3);
+            reloadDataCats();
         });
         const btnLogOut = document.querySelector('.btn_logOut');
         btnLogOut.addEventListener('click', ()=>{
@@ -166,43 +247,54 @@ function btnsEvList(){
         });
     };
 };
-function btnEdit(){
-    addEventListener('click', console.log(5));
-}
-function btnDel(){
-    addEventListener('click', console.log(1));
+
+
+function btnEdit(id){
+    // console.log(data);
+    showPopupCatEdit(id);
+    // api.getCatById(idForEdit)
+
+};
+
+function btnDel(id){
+    // console.log(id);
+    //5 часов спустя я-таки добился этого >_<
+    api.deleteCat(id)
+        .then(()=>{
+            reloadDataCats();
+            location.reload(); 
+        })
+
 }
 
 btnsEvList();
 
+function reloadDataCats(){
+    storageAllCats.clear();
+    main.innerHTML = "";
+    getCats();
+};
 
-// function handleClickButtonDelete(){
-//     api.getAllCats()
-//         .then(allCats =>{
-//             allCats.data.forEach(function(item){
-//                 api.deleteCat(item.id)
-//                     .then((data) => {
-//                         console.log(data);
-//                         // if(data.message === 'ok'){
-//                         //     newCardElement.remove();
-//                         //     const oldData = getLocalStorageData('cats');
-//                         //     const newData = oldData.filter(item => item.id !== dataCat.id);
-//                         //     setLocalStorageData('cats', newData);
-//                         // }
-//                     })
-//             })  
-//         })      
-// }
-// function btnDel(){
-//     addEventListener('click', handleClickButtonDelete);
-// }
 
-// сессия пользователя-кнопка Логина надпись Войдите для редактирования
 
-//     на карточках кнопки Удалить с предварительным уведомлением, Изменить
 
-// если время будет   если лога нет, то попап по таймауту с кнопкой закрытия. Зайдите чтобы редактировать котанов
+//рендер котов из файла
+// cats.forEach(function(item){
+//     const itemCat = `
+//         <div class="card_cat">
+//             <div class="cat-img" style="background-image: url(${item.img_link})"></div>
+//             <h3>${item.name}</h3>
+//             <p class="rate">${rate(item.rate)}</p> 
+//             ${showBtnDel()}
+//         </div>
+//     `;
+//     main.innerHTML += itemCat;
+// });
 
-// все запросы перезаписывают локал стор
-
-// кнопка Обновить котов запрашивает обновленные данные и обновляет их в локал стор
+//попап для рендера котов из файла:
+// const cards = document.getElementsByClassName("cat-img");
+// for (let i = 0; i < cards.length; i++) {
+//     cards[i].addEventListener("click", function(e) {
+//         showPopup(cats[i]);
+//     })
+// };
