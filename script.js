@@ -196,12 +196,12 @@ authForm.addEventListener('submit', (e)=> {
 function showAuthForm(){
     if(Cookies.get('user')){
         authForm.innerHTML = `
-            <div class="hello-name">Привет, ${Cookies.get('user')}!</div>
+            <div class="hello-name">Привет,<br>${Cookies.get('user')}!</div>
         `;
         document.querySelector('header').innerHTML += `
-            <button type="button" class="btn_add">добавить кота</button>
-            <button type="button" class="btn_update">обновить</button>
-            <button type="button" class="btn_logOut">Выход</button>
+            <button type="button" class="btn btn_add">Добавить котю</button>
+            <button type="button" class="btn btn_update">Обновить коть</button>
+            <button type="button" class="btn btn_logOut">Выход</button>
         `;
     };
 };
@@ -210,7 +210,7 @@ function showBtnDel(id){
         // console.log(id);
         // return `<button type="button" class="btn_delete">удалить</button>`
 
-        return `<div class="btn_delete" onclick="btnDel(${id})">удалить</div>`
+        return `<div class="btn btn_delete" onclick="btnDel(${id})">Удалить</div>`
     } else {
         return ""
     }
@@ -220,7 +220,7 @@ function showBtnEdit(dataCat){
         //console.log(dataCat); //данные по коту
         oneCat = dataCat;
         // console.log(oneCat);
-        return `<div class="btn_edit" onclick="btnEdit(${dataCat.id})">изменить</div>`
+        return `<div class="btn btn_edit" onclick="btnEdit(${dataCat.id})">Редактировать</div>`
     } else {
         return ""
     }
